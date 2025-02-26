@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LocalTunnel GUI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f4f4f9;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 350px;
+    }
+    h1 {
+      color: #333;
+    }
+    input, button, textarea {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      display: block;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    #logs {
+      min-height: 150px;
+      resize: none;
+    }
+    #errorMessage {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>LocalTunnel GUI</h1>
+    <input type="number" id="port" placeholder="Port (örn: 3000)">
+    <button id="startBtn">Tüneli Başlat</button>
+    <button id="stopBtn" disabled>Tüneli Durdur</button>
+    <input type="text" id="url" readonly placeholder="Tünel URL'si burada görünecek">
+    <textarea id="logs" readonly></textarea>
+    <div id="errorMessage"></div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    const portInput = document.getElementById('port');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const urlInput = document.getElementById('url');
+    const logs = document.getElementById('logs');
+    const errorMessage = document.getElementById('errorMessage');
+
+    startBtn.addEventListener('click', () => {
+      const port = parseInt(portInput.value);
+      if (!port) {
+        logs.value += "Lütfen geçerli bir port girin!\n";
+        return;
+      }
+      ipcRenderer.send('start-tunnel', port);
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      errorMessage.style.display = 'none';
+    });
+
+    stopBtn.addEventListener('click', () => {
+      ipcRenderer.send('stop-tunnel');
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      urlInput.value = '';
+    });
+
+    ipcRenderer.on('tunnel-url', (event, url) => {
+      urlInput.value = url;
+      logs.value += `Tünel başlatıldı: ${url}\n`;
+      errorMessage.style.display = 'none';
+    });
+
+    ipcRenderer.on('tunnel-error', (event, error) => {
+      logs.value += `HATA: ${error}\n`;
+      errorMessage.textContent = `Hata: ${error}`;
+      errorMessage.style.display = 'block';
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    });
+  </script>
+</body>
+</html>
