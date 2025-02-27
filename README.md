@@ -1,6 +1,6 @@
 
 # Localtunnel GUI for Windows
-
+![Ekran Görüntüsü](Ekran%20g%C3%B6r%C3%BCnt%C3%BCs%C3%BC%202025-02-26%20170707.png)
 Bu proje, [Localtunnel](https://github.com/localtunnel/localtunnel) için Windows işletim sistemi üzerinde çalışan basit bir masaüstü arayüzü sağlar. Kullanıcıların, yerel sunucularını kolayca internet üzerinden erişilebilir hale getirmelerini amaçlar.
 
 ### Kullanım
